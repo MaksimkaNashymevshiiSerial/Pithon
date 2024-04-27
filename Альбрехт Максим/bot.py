@@ -1,5 +1,12 @@
 import telebot
 import random
+import pandas as pd
+
+data = pd.read_csv('city.csv', sep=',')
+towns = data['city'].tolist()
+towns = list(set(towns))
+user_town = []
+preg = "@"
 
 bot = telebot.TeleBot('7180757450:AAHKF_9iws9kVMj4xGodc1AAXfcKYHu_YW0')
 flag = False
@@ -19,6 +26,9 @@ def get_text_messages(message):
 	global flag
 	global secret
 	global count
+	global towns
+	global uses_town
+	global preg
 
 	print(message)
 	body = message.text
@@ -28,7 +38,8 @@ def get_text_messages(message):
 	elif body =="/help":
 		bot.send_message(message.from_user.id,
 			"Для запуска игры напиши /secret_number"
-			"\n Для запуска генератора паролей /passwd")
+			"\n Для запуска генератора паролей /passwd"
+			"\n Для запуска игры города /city")
 	elif body =="/secret_number":
 		flag = "secret_number"
 		count = 0
@@ -64,6 +75,13 @@ def get_text_messages(message):
 		else:
 			bot.send_message(message.from_user.id,
 				"Это победа, ты молодец, Пользователь), Попыток: " + str(count))
+			flag = False
+	elif body =="/city":
+		bot.send_message(message.from_user.id,
+			"Привет!, давай сыграем в города России!"
+			 "\n Называем города на последнюю букву предыдущего города"
+			 "\n Я начинаю!")
+		flag = "city"
 
 	else:
 		bot.send_message(message.from_user.id,
