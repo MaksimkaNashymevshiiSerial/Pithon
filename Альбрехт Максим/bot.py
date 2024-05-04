@@ -3,10 +3,14 @@ import random
 import pandas as pd
 
 data = pd.read_csv('city.csv', sep=',')
+data = data.dropna(subset=['city'])
 towns = data['city'].tolist()
 towns = list(set(towns))
 user_town = []
-preg = "@"
+my_towns = []
+cur_town = '@'
+last_letter = ''
+error_count = 0
 
 bot = telebot.TeleBot('7180757450:AAHKF_9iws9kVMj4xGodc1AAXfcKYHu_YW0')
 flag = False
@@ -27,8 +31,10 @@ def get_text_messages(message):
 	global secret
 	global count
 	global towns
-	global uses_town
-	global preg
+	global my_towns
+	global cur_town
+	global last_letter
+	global error_count
 
 	print(message)
 	body = message.text
@@ -80,8 +86,35 @@ def get_text_messages(message):
 		bot.send_message(message.from_user.id,
 			"Привет!, давай сыграем в города России!"
 			 "\n Называем города на последнюю букву предыдущего города"
-			 "\n Я начинаю!")
+			 "\n Можешь начинать!"
+			 "\n Если не знаешь города, скажи: Сдаюсь")
 		flag = "city"
+		error_count = 0
+		my_towns = []
+	elif flag == 'city':
+		find_town = False
+		if body == 'Сдаюсь':
+			flag = False
+			bot.send_message(message.from_user.id,
+			"Жаль, а я еще знаю города...")
+		elif (body not in towns):
+			bot.send_message(message.from_user.id,
+			"Не надо обманывать меня! Такого города нет!")
+			error_count += 1
+		elif (body not in my_towns and
+			 body[0].lower() == last_letter.lower() or cur_town == '@'):
+				if body[-1].lower() == 'ь':
+					last_letter = body[-2].lower()
+				elif body[-1].lower() == 'й' or body[-1].lower() == 'ы':
+					last_letter = 'и'
+				else:
+					last_letter = body[-1].lower()
+
+				for town in towns:
+					if town[0].lower() == last_letter: 
+						find_town = True
+						bot.send_message(message.from_user.id, town)
+						
 
 	else:
 		bot.send_message(message.from_user.id,
