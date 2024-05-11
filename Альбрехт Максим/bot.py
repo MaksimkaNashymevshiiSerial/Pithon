@@ -103,19 +103,52 @@ def get_text_messages(message):
 			error_count += 1
 		elif (body not in my_towns and
 			 body[0].lower() == last_letter.lower() or cur_town == '@'):
-				if body[-1].lower() == 'ь':
-					last_letter = body[-2].lower()
-				elif body[-1].lower() == 'й' or body[-1].lower() == 'ы':
-					last_letter = 'и'
-				else:
-					last_letter = body[-1].lower()
+			if body[-1].lower() == 'ь':
+				last_letter = body[-2].lower()
+			elif body[-1].lower() == 'й' or body[-1].lower() == 'ы':
+				last_letter = 'и'
+			else:
+				last_letter = body[-1].lower()
 
-				for town in towns:
-					if town[0].lower() == last_letter: 
-						find_town = True
-						bot.send_message(message.from_user.id, town)
-						
-
+			my_towns.append(body)
+			towns.remove(body)
+			for town in towns:
+				if town[0].lower() == last_letter: 
+					find_town = True
+					bot.send_message(message.from_user.id, town)
+					if town[-1].lower() == 'ь':
+						last_letter = town[-2].lower()
+					elif town[-1].lower() == 'ы' or town[-1].lower() == 'й':
+						last_letter == 'и'
+					else:
+						last_letter = town[-1].lower()
+					bot.send_message(message.from_user.id, "Тебе город на букву: " +
+						 last_letter.upper())
+					i = 0
+					for town in towns:
+						if last_letter == town[0].lower():
+							i += 1
+					bot.send_message(message.from_user.id, "Я знаю еще: " + str(i) +
+							" городов на букву " + last_letter + "!")
+					if i == 0:
+						bot.send_message(message.from_user.id, "Ты проиграл, городов на букву: " +
+							last_letter + " больше нет")
+						bot.send_message(message.from_user.id, "Ты допустил: " +
+							str(error_count) + " ошибок")
+						flag = False
+						bot.send_message(message.from_user.id, "Для начала напиши /help")
+					cur_town = town
+					my_towns.append(town)
+					towns.remove(town)
+					break
+		else:
+			bot.send_message(message.from_user.id, "Играешь не по правилам! Тебе на: " + last_letter.upper())
+			error_count += 1
+			bot.send_message(message.from_user.id, "Ты допустил: " + str(error_count) +
+				" ошибок")
+		if body =='/exit':
+			flag = False
+			bot.send_message(message.from_user.id, "Для начала напиши /help")
 	else:
 		bot.send_message(message.from_user.id,
 			"Для начала напиши /help")
